@@ -1,2 +1,2 @@
 # furry-adventure
-kernel development
+linux kernel development
