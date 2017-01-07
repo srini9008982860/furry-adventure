@@ -1,0 +1,32 @@
+#include<linux/module.h>
+#include<linux/init.h>
+#include<linux/interrupt.h>
+#define SHARED_IRQ 18
+static int irq=SHARED_IRQ,my_dev_id,irq_counter=0;
+module_param(irq,int,S_IRUGO);
+static irqreturn_t my_interrupt(int irq,void *dev_id)
+{
+        irq_counter++;
+        printk(KERN_INFO"IN THE ISR:counter=%d\n",irq_counter);
+        return IRQ_NONE;
+}
+static int my_init(void)
+{
+        if(request_irq(irq,my_interrupt,IRQF_SHARED,"my_interrupt",&my_dev_id))
+        {
+                return -1;
+        }
+        printk(KERN_INFO"successfully loading ISR hanadler\n");
+return 0;
+}
+static void my_exit(void)
+{
+        synchronize_irq(irq);
+        free_irq(irq,&my_dev_id);
+        printk(KERN_INFO"SUCCESSFULLY UNLOADING\n");
+}
+module_init(my_init);
+module_exit(my_exit);
+MODULE_AUTHOR("SRINIVASULU");
+MODULE_DESCRIPTION("INTERRUPT HANDLER TEST");
+MODULE_LICENSE("GPL");
